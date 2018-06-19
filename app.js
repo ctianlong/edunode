@@ -35,13 +35,23 @@ router.all('/api/*', function(req, res, next){
         console.log(4);
         console.log("Got error: " + e.message);
     });
-    
-    if(req.body){
-        console.log(req.body);
-        console.log(1);
-        request.write(JSON.stringify(req.body));
-        console.log(2);
+    console.log(req.body);
+    var bb = {
+        "name": "my",
+        "enabled": 0,
+        "pageNum": 1,
+        "pageSize": 2,
+        "orderColumn": "name",
+        "orderDir": "asc"
     }
+    console.log(JSON.stringify(bb));
+    request.write(JSON.stringify(bb));
+    // if(req.body){
+    //     console.log(req.body);
+    //     console.log(1);
+    //     request.write(JSON.stringify(req.body));
+    //     console.log(2);
+    // }
     request.end();
     console.log(6);
 });
