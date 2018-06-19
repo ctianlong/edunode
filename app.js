@@ -37,7 +37,7 @@ router.all('/api/*', function(req, res, next){
         console.log("Got error: " + e.message);
     });
     if(req.body){
-        request.write(req.body);
+        request.write(JSON.stringify(req.body));
     }
     request.end();
 });
