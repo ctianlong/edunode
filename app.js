@@ -14,7 +14,7 @@ router.all('/api/*', function(req, res, next){
     var proxy_port = proxy.substring(proxy.indexOf(':') + 1);;
     var opt = {
         host: proxy_host,
-        port: proxy_port,
+        port: "30101",
         method: req.method,    //这里是发送的方法
         path: getCseUrl(req.url),  //这里是访问的路径
         headers: req.headers,
