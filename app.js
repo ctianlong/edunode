@@ -9,11 +9,12 @@ function getCseUrl(_url){
 }
 
 router.all('/api/*', function(req, res, next){
-    // var proxy_host = '127.0.0.1';
-    // var proxy_port = '13092';
+    var proxy = process.env.HTTP_PROXY || '127.0.0.1:3001';
+    var proxy_host = proxy.substring(0, proxy.indexOf(':'));
+    var proxy_port = proxy.substring(proxy.indexOf(':') + 1);;
     var opt = {
-        // host: proxy_host,
-        // port: proxy_port,
+        host: proxy_host,
+        port: proxy_port,
         method: req.method,    //这里是发送的方法
         path: getCseUrl(req.url),  //这里是访问的路径
         headers: req.headers,
