@@ -3,12 +3,21 @@ const http = require('http');
 const app = express();
 const router = express.Router();
 
+var bodyParser = require('body-parser');
+
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
+var jsonParser = bodyParser.json();
+
+app.use(jsonParser);
+
 function getCseUrl(_url){
     _url = _url.replace(/^\/api\//, '');
     return 'http://' + _url;
 }
 
 router.all('/api/*', function(req, res, next){
+    console.log(req.body);
+
     var proxy = process.env.HTTP_PROXY || '127.0.0.1:30101';
     var proxy_host = proxy.substring(0, proxy.indexOf(':'));
     var proxy_port = proxy.substring(proxy.indexOf(':') + 1);;
@@ -18,8 +27,9 @@ router.all('/api/*', function(req, res, next){
         method: req.method,    //这里是发送的方法
         path: getCseUrl(req.url),  //这里是访问的路径
         headers: req.headers,
-        timeout: 2000,
+        timeout: 3000,
     };
+
     var result = '';
     var request = http.request(opt, function (response) {
         console.log(3);
@@ -35,23 +45,12 @@ router.all('/api/*', function(req, res, next){
         console.log(4);
         console.log("Got error: " + e.message);
     });
-    console.log(req.body);
-    var bb = {
-        "name": "my",
-        "enabled": 0,
-        "pageNum": 1,
-        "pageSize": 2,
-        "orderColumn": "name",
-        "orderDir": "asc"
+   
+    if(req.body){
+        console.log(1);
+        request.write(JSON.stringify(bb));
+        console.log(2);
     }
-    console.log(JSON.stringify(bb));
-    request.write(JSON.stringify(bb));
-    // if(req.body){
-    //     console.log(req.body);
-    //     console.log(1);
-    //     request.write(JSON.stringify(req.body));
-    //     console.log(2);
-    // }
     request.end();
     console.log(6);
 });
