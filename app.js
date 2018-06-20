@@ -9,12 +9,12 @@ const router = express.Router();
 const jsonParser = bodyParser.json();
 
 // 获取请求的headers，去掉host和connection
-var getHeader = function (req) {
+var getHeader = function (_headers) {
     var ret = {};
-    for (var i in req.headers) {
+    for (var i in _headers) {
         // 请求体转换过程中可能出现长度不一致，故把content-length也去掉
         if (!/host|connection|content-length/i.test(i)) {
-        ret[i] = req.headers[i];
+        ret[i] = _headers[i];
         }
     }
     return ret;
@@ -25,16 +25,17 @@ function getCseUrl(_url){
     return 'http://' + _url;
 }
 
+var proxy = process.env.HTTP_PROXY || '127.0.0.1:30101';
+var proxy_host = proxy.substring(0, proxy.indexOf(':'));
+var proxy_port = proxy.substring(proxy.indexOf(':') + 1);
+
 router.all('/api/*', jsonParser, function(req, res, next){
-    var proxy = process.env.HTTP_PROXY || '127.0.0.1:30101';
-    var proxy_host = proxy.substring(0, proxy.indexOf(':'));
-    var proxy_port = proxy.substring(proxy.indexOf(':') + 1);;
     var opt = {
         host: proxy_host,
         port: proxy_port,
         method: req.method,    //这里是发送的方法
         path: getCseUrl(req.url),  //这里是访问的路径
-        headers: getHeader(req)
+        headers: getHeader(req.headers)
     };
     var result = '';
     var request = http.request(opt, function (response) {
