@@ -16,6 +16,7 @@ function getCseUrl(_url){
 }
 
 router.all('/api/*', function(req, res, next){
+    console.log(req.headers);
     console.log(req.body);
 
     var proxy = process.env.HTTP_PROXY || '127.0.0.1:30101';
