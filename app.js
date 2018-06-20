@@ -21,8 +21,7 @@ var getHeader = function (_headers) {
 };
 
 function getCseUrl(_url){
-    _url = _url.replace(/^\/api\//, '');
-    return 'http://' + _url;
+    return _url.replace(/^\/api\//i, 'http://');
 }
 
 var proxy = process.env.HTTP_PROXY || '127.0.0.1:30101';
@@ -47,12 +46,14 @@ router.all('/api/*', jsonParser, function(req, res, next){
             res.end();
         });
     }).on('error', function (e) {
-        console.log("Got error: " + e.message);
-        res.end(e.stack);
+        console.log("Got error: " + e.stack);
+        res.writeHead("500");
+        res.end();
     });
     request.write(JSON.stringify(req.body));
     request.end();
 });
+
 app.use(router);
 app.listen(8083);
 console.log('server is start on ' + 8083);

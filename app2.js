@@ -11,27 +11,30 @@ var log = function () {
 };
 
 // 获取请求的headers，去掉host和connection
-var getHeader = function (req) {
+var getHeader = function (_headers) {
   var ret = {};
-  for (var i in req.headers) {
+  for (var i in _headers) {
     if (!/host|connection/i.test(i)) {
-      ret[i] = req.headers[i];
+      ret[i] = _headers[i];
     }
   }
   return ret;
 };
 
 // 获取请求的路径
-var getPath = function (req) {
-  var url = req.url;
-  if (url.substr(0, 7).toLowerCase() === 'http://') {
-    var i = url.indexOf('/', 7);
-    if (i !== -1) {
-      url = url.substr(i);
-    }
-  }
-  return url;
-};
+function getCseUrl(_url){
+    // if (_url.substr(0, 7).toLowerCase() === 'http://') {
+    //     var i = _url.indexOf('/', 7);
+    //     if (i !== -1) {
+    //         _url = _url.substr(i);
+    //     }
+    // }
+    return _url.replace(/^\/api\//i, 'http://');
+}
+
+var proxy = process.env.HTTP_PROXY || '127.0.0.1:30101';
+var proxy_host = proxy.substring(0, proxy.indexOf(':'));
+var proxy_port = proxy.substring(proxy.indexOf(':') + 1);
 
 // 代理请求
 var counter = 0;
@@ -39,11 +42,11 @@ var onProxy = function (req, res) {
   counter++;
   var num = counter;
   var opt = {
-    host: "127.0.0.1",
-    port: "30101",
-    path:     getPath(req),
+    host: proxy_host,
+    port: proxy_port,
+    path:     getCseUrl(req.url),
     method:   req.method,
-    headers:  getHeader(req)
+    headers:  getHeader(req.headers)
   };
   log('#%d\t%s http://%s%s', num, req.method, opt.host, opt.path);
   var req2 = http.request(opt, function (res2) {
@@ -60,10 +63,10 @@ var onProxy = function (req, res) {
   }
   req2.on('error', function (err) {
     log('#%d\tERROR: %s', num, err.stack);
-    res.end(err.stack);
+    res.writeHead("500");
+    res.end();
   });
 };
-
 
 // 启动http服务器
 var server = http.createServer(onProxy);
