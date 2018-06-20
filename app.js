@@ -29,9 +29,8 @@ function getCseUrl(_url){
     return _url.replace(/^\/api\//i, 'http://');
 }
 
-var proxy = process.env.HTTP_PROXY || '127.0.0.1:30101';
-var proxy_host = proxy.substring(0, proxy.indexOf(':'));
-var proxy_port = proxy.substring(proxy.indexOf(':') + 1);
+var proxy_host = process.env.HTTP_PROXY_HOST || '127.0.0.1';
+var proxy_port = process.env.HTTP_PROXY_PORT || '30101';
 
 router.all('/api/*', function(req, res, next){
     var opt = {
