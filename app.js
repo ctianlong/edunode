@@ -1,24 +1,22 @@
 const express = require('express');
 const http = require('http');
+const bodyParser = require('body-parser');
+// const multer  = require('multer');
+
 const app = express();
 const router = express.Router();
-
-var bodyParser = require('body-parser');
-
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
-var jsonParser = bodyParser.json();
-
-app.use(jsonParser);
+// const urlencodedParser = bodyParser.urlencoded({ extended: false });
+const jsonParser = bodyParser.json();
 
 // 获取请求的headers，去掉host和connection
 var getHeader = function (req) {
     var ret = {};
     for (var i in req.headers) {
-        if (!/host|connection/i.test(i)) {
+        // 请求体转换过程中可能出现长度不一致，故把content-length也去掉
+        if (!/host|connection|content-length/i.test(i)) {
         ret[i] = req.headers[i];
         }
     }
-    // delete ret['content-length'];
     return ret;
 };
 
@@ -27,10 +25,7 @@ function getCseUrl(_url){
     return 'http://' + _url;
 }
 
-router.all('/api/*', function(req, res, next){
-    console.log(req.headers);
-    console.log(req.body);
-
+router.all('/api/*', jsonParser, function(req, res, next){
     var proxy = process.env.HTTP_PROXY || '127.0.0.1:30101';
     var proxy_host = proxy.substring(0, proxy.indexOf(':'));
     var proxy_port = proxy.substring(proxy.indexOf(':') + 1);;
@@ -41,30 +36,21 @@ router.all('/api/*', function(req, res, next){
         path: getCseUrl(req.url),  //这里是访问的路径
         headers: getHeader(req)
     };
-
     var result = '';
     var request = http.request(opt, function (response) {
-        console.log(3);
         response.on('data', function (d) {
             result += d;
         }).on('end', function () {
-            console.log(5);
             res.writeHead(response.statusCode, response.headers);
             res.write(result);
             res.end();
         });
     }).on('error', function (e) {
-        console.log(4);
         console.log("Got error: " + e.message);
+        res.end(e.stack);
     });
-   
-    if(req.body){
-        console.log(1);
-        request.write(JSON.stringify(req.body));
-        console.log(2);
-    }
+    request.write(JSON.stringify(req.body));
     request.end();
-    console.log(6);
 });
 app.use(router);
 app.listen(8083);
