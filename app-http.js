@@ -1,5 +1,5 @@
 /**
- * 简单的HTTP代理服务器
+ * 简单的HTTP代理服务器，静态文件需要自己区分URL，自己返回文件
  */
 var http = require('http');
 
@@ -71,4 +71,4 @@ var onProxy = function (req, res) {
 // 启动http服务器
 var server = http.createServer(onProxy);
 server.listen(8083);
-log('proxy server listen on http://127.0.0.1:8083');
+log('proxy server listen on 8083');

@@ -1,3 +1,6 @@
+/**
+ * 使用express搭配http，没用pipe，需要自己区分body类型
+ */
 const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
