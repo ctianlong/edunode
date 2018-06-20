@@ -10,6 +10,18 @@ var jsonParser = bodyParser.json();
 
 app.use(jsonParser);
 
+// 获取请求的headers，去掉host和connection
+var getHeader = function (req) {
+    var ret = {};
+    for (var i in req.headers) {
+        if (!/host|connection/i.test(i)) {
+        ret[i] = req.headers[i];
+        }
+    }
+    delete ret['content-length'];
+    return ret;
+};
+
 function getCseUrl(_url){
     _url = _url.replace(/^\/api\//, '');
     return 'http://' + _url;
@@ -27,8 +39,7 @@ router.all('/api/*', function(req, res, next){
         port: proxy_port,
         method: req.method,    //这里是发送的方法
         path: getCseUrl(req.url),  //这里是访问的路径
-        headers: req.headers,
-        timeout: 3000,
+        headers: getHeader(req)
     };
 
     var result = '';

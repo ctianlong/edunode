@@ -1,7 +1,5 @@
 /**
  * 简单的HTTP代理服务器
- *
- * @author 老雷<leizongmin@gmail.com>
  */
 var http = require('http');
 
@@ -41,7 +39,8 @@ var onProxy = function (req, res) {
   counter++;
   var num = counter;
   var opt = {
-    host:     req.headers.host,
+    host: "127.0.0.1",
+    port: "30101",
     path:     getPath(req),
     method:   req.method,
     headers:  getHeader(req)
@@ -54,7 +53,7 @@ var onProxy = function (req, res) {
       log('#%d\tEND', num);
     });
   });
-  if (/POST|PUT/i.test(req.method)) {
+  if (/POST|PUT|DELETE|PATCH/i.test(req.method)) {
     req.pipe(req2);
   } else {
     req2.end();
