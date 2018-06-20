@@ -48,7 +48,7 @@ router.all('/api/*', function(req, res, next){
    
     if(req.body){
         console.log(1);
-        request.write(JSON.stringify(bb));
+        request.write(JSON.stringify(req.body));
         console.log(2);
     }
     request.end();
