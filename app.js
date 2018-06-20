@@ -18,7 +18,7 @@ var getHeader = function (req) {
         ret[i] = req.headers[i];
         }
     }
-    delete ret['content-length'];
+    // delete ret['content-length'];
     return ret;
 };
 
