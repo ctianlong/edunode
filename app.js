@@ -32,7 +32,10 @@ function getCseUrl(_url){
 var proxy_host = process.env.HTTP_PROXY_HOST || '127.0.0.1';
 var proxy_port = process.env.HTTP_PROXY_PORT || '30101';
 
+var counter = 0;
 router.all('/api/*', function(req, res, next){
+    counter++;
+    var num = counter;
     var opt = {
         host: proxy_host,
         port: proxy_port,
@@ -40,12 +43,18 @@ router.all('/api/*', function(req, res, next){
         path: getCseUrl(req.url),
         headers: getHeader(req.headers)
     };
+    log('#%d\t%s %s %s %s', num, opt.method, opt.host, opt.port, opt.path);
     var req2 = http.request(opt, function (res2) {
-        res.writeHead(res2.statusCode, res2.headers);
+        headers = res2.headers;
+        headers['Access-Control-Allow-Origin'] = '*';
+        res.writeHead(res2.statusCode, headers);
         res2.pipe(res);
+        res2.on('end', function () {
+            log('#%d\tEND', num);
+        });
     });
     req2.on('error', function (e) {
-        log('ERROR: %s', e.stack);
+        log('#%d\tERROR: %s', num, e.stack);
         res.writeHead("500");
         res.end();
     });

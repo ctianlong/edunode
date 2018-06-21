@@ -57,6 +57,17 @@ router.all('/api/*', jsonParser, function(req, res, next){
     request.end();
 });
 
+console.log(__dirname);
+console.log(__filename);
+
 app.use(router);
+
+app.use(express.static(__dirname + '/dist'));
+
+app.use(function(req, res, next) {
+    console.log("test");
+    res.send("hello");
+});
+
 app.listen(8083);
 console.log('server is start on ' + 8083);
